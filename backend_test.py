@@ -360,42 +360,57 @@ def test_user_profile_management():
         print(f"Exception: {str(e)}")
         return False
 
-def run_all_tests():
-    """Run all API tests and report results"""
-    print_separator("NUTRITION TRACKER BACKEND API TESTS")
+if __name__ == "__main__":
+    # Get the test to run from command line argument
+    if len(sys.argv) < 2:
+        print("Usage: python backend_test.py [test_name]")
+        print("Available tests: food_image, food_entry, daily_summary, weight_tracking, user_profile, all")
+        sys.exit(1)
+    
+    test_name = sys.argv[1]
+    
+    print_separator("NUTRITION TRACKER BACKEND API TEST")
     print(f"Backend URL: {BACKEND_URL}")
     print(f"Test User ID: {TEST_USER_ID}")
     print(f"Test Time: {datetime.now().isoformat()}")
     
-    results = {}
+    if test_name == "food_image":
+        result = test_food_image_analysis()
+    elif test_name == "food_entry":
+        result = test_food_entry_storage()
+    elif test_name == "daily_summary":
+        result = test_daily_nutrition_summary()
+    elif test_name == "weight_tracking":
+        result = test_weight_tracking()
+    elif test_name == "user_profile":
+        result = test_user_profile_management()
+    elif test_name == "all":
+        # Run all tests
+        results = {}
+        results["Food Image Analysis API"] = test_food_image_analysis()
+        results["Food Entry Storage"] = test_food_entry_storage()
+        results["Daily Nutrition Summary"] = test_daily_nutrition_summary()
+        results["Weight Tracking"] = test_weight_tracking()
+        results["User Profile Management"] = test_user_profile_management()
+        
+        # Print summary
+        print_separator("TEST RESULTS SUMMARY")
+        all_passed = True
+        for test, passed in results.items():
+            status = "✅ PASSED" if passed else "❌ FAILED"
+            print(f"{test}: {status}")
+            if not passed:
+                all_passed = False
+        
+        print("\nOverall Result:", "✅ ALL TESTS PASSED" if all_passed else "❌ SOME TESTS FAILED")
+        sys.exit(0 if all_passed else 1)
+    else:
+        print(f"Unknown test: {test_name}")
+        print("Available tests: food_image, food_entry, daily_summary, weight_tracking, user_profile, all")
+        sys.exit(1)
     
-    # Test Food Image Analysis API
-    results["Food Image Analysis API"] = test_food_image_analysis()
-    
-    # Test Food Entry Storage
-    results["Food Entry Storage"] = test_food_entry_storage()
-    
-    # Test Daily Nutrition Summary
-    results["Daily Nutrition Summary"] = test_daily_nutrition_summary()
-    
-    # Test Weight Tracking
-    results["Weight Tracking"] = test_weight_tracking()
-    
-    # Test User Profile Management
-    results["User Profile Management"] = test_user_profile_management()
-    
-    # Print summary
-    print_separator("TEST RESULTS SUMMARY")
-    all_passed = True
-    for test, passed in results.items():
-        status = "✅ PASSED" if passed else "❌ FAILED"
-        print(f"{test}: {status}")
-        if not passed:
-            all_passed = False
-    
-    print("\nOverall Result:", "✅ ALL TESTS PASSED" if all_passed else "❌ SOME TESTS FAILED")
-    return all_passed
-
-if __name__ == "__main__":
-    success = run_all_tests()
-    sys.exit(0 if success else 1)
+    # Print result for individual test
+    print_separator("TEST RESULT")
+    status = "✅ PASSED" if result else "❌ FAILED"
+    print(f"Test {test_name}: {status}")
+    sys.exit(0 if result else 1)
